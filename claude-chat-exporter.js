@@ -72,21 +72,29 @@ function setupClaudeExporter() {
     }
   }
 
-  // Build a content → timestamp map for human messages from API response.
-  // Matching by content avoids index misalignment caused by hidden/system
-  // messages that the API returns but the UI does not display.
-  function getMessageTimestamps(data) {
-    const map = new Map();
-    if (!data?.chat_messages) return map;
-
-    for (const msg of data.chat_messages) {
-      if (msg.sender === 'human') {
-        const text = msg.content?.map(c => c.text ?? '').join('').trim();
-        if (text) map.set(text, formatTimestamp(msg.created_at));
-      }
+  // Returns copy buttons filtered by message type.
+  // claudeOnly=true  → copy buttons whose action bar has a feedback button (Claude responses)
+  // claudeOnly=false → copy buttons whose action bar has none (human messages)
+  //
+  // claude.ai dropped the [role="group"][aria-label="Message actions"] wrapper, so we
+  // can no longer iterate action groups. Instead we start from each copy button and walk
+  // up the ancestor chain: the first ancestor that still contains only this one copy
+  // button decides the type via the presence of a feedback button. We stop as soon as an
+  // ancestor holds more than one copy button (= shared container of multiple messages).
+  function isClaudeCopyButton(copyBtn) {
+    let el = copyBtn;
+    for (let depth = 0; depth < 8; depth++) {
+      el = el.parentElement;
+      if (!el) break;
+      if (el.querySelectorAll(SELECTORS.copyButton).length > 1) break;
+      if (el.querySelector(SELECTORS.feedbackButton)) return true;
     }
+    return false;
+  }
 
-    return map;
+  function getCopyButtons(claudeOnly) {
+    return [...document.querySelectorAll(SELECTORS.copyButton)]
+      .filter(btn => isClaudeCopyButton(btn) === claudeOnly);
   }
 
   function getConversationTitle() {
