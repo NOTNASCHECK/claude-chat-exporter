@@ -72,6 +72,23 @@ function setupClaudeExporter() {
     }
   }
 
+  // Build a content → timestamp map for human messages from API response.
+  // Matching by content avoids index misalignment caused by hidden/system
+  // messages that the API returns but the UI does not display.
+  function getMessageTimestamps(data) {
+    const map = new Map();
+    if (!data?.chat_messages) return map;
+
+    for (const msg of data.chat_messages) {
+      if (msg.sender === 'human') {
+        const text = msg.content?.map(c => c.text ?? '').join('').trim();
+        if (text) map.set(text, formatTimestamp(msg.created_at));
+      }
+    }
+
+    return map;
+  }
+
   // Returns copy buttons filtered by message type.
   // claudeOnly=true  → copy buttons whose action bar has a feedback button (Claude responses)
   // claudeOnly=false → copy buttons whose action bar has none (human messages)
@@ -95,23 +112,6 @@ function setupClaudeExporter() {
   function getCopyButtons(claudeOnly) {
     return [...document.querySelectorAll(SELECTORS.copyButton)]
       .filter(btn => isClaudeCopyButton(btn) === claudeOnly);
-  }
-
-    // Build a content → timestamp map for human messages from API response.
-  // Matching by content avoids index misalignment caused by hidden/system
-  // messages that the API returns but the UI does not display.
-  function getMessageTimestamps(data) {
-    const map = new Map();
-    if (!data?.chat_messages) return map;
-
-    for (const msg of data.chat_messages) {
-      if (msg.sender === 'human') {
-        const text = msg.content?.map(c => c.text ?? '').join('').trim();
-        if (text) map.set(text, formatTimestamp(msg.created_at));
-      }
-    }
-
-    return map;
   }
 
   function getConversationTitle() {
