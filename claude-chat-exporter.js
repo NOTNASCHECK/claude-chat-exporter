@@ -42,6 +42,23 @@ function setupClaudeExporter() {
     });
   }
 
+    // Build a content → timestamp map for human messages from API response.
+  // Matching by content avoids index misalignment caused by hidden/system
+  // messages that the API returns but the UI does not display.
+  function getMessageTimestamps(data) {
+    const map = new Map();
+    if (!data?.chat_messages) return map;
+
+    for (const msg of data.chat_messages) {
+      if (msg.sender === 'human') {
+        const text = msg.content?.map(c => c.text ?? '').join('').trim();
+        if (text) map.set(text, formatTimestamp(msg.created_at));
+      }
+    }
+
+    return map;
+  }
+
   // Fetch conversation data from Claude API to get timestamps
   async function fetchConversationData() {
     try {
@@ -70,23 +87,6 @@ function setupClaudeExporter() {
       console.warn('Failed to fetch conversation data:', error);
       return null;
     }
-  }
-
-  // Build a content → timestamp map for human messages from API response.
-  // Matching by content avoids index misalignment caused by hidden/system
-  // messages that the API returns but the UI does not display.
-  function getMessageTimestamps(data) {
-    const map = new Map();
-    if (!data?.chat_messages) return map;
-
-    for (const msg of data.chat_messages) {
-      if (msg.sender === 'human') {
-        const text = msg.content?.map(c => c.text ?? '').join('').trim();
-        if (text) map.set(text, formatTimestamp(msg.created_at));
-      }
-    }
-
-    return map;
   }
 
   // Returns copy buttons filtered by message type.
