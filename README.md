@@ -1,3 +1,5 @@
+Maintained hard fork of [agarwalvishal/claude-chat-exporter](https://github.com/agarwalvishal/claude-chat-exporter) (MIT). Original by Vishal Agarwal.
+
 # Claude Chat Exporter
 
 A JavaScript tool that exports Claude.ai conversations with **perfect markdown fidelity** by leveraging Claude's native copy functionality. Get complete conversations with both human and AI messages including tables, complex formatting, and all elements that Claude supports.
