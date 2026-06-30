@@ -10,7 +10,7 @@ function setupClaudeExporter() {
   const SELECTORS = {
     copyButton: 'button[data-testid="action-bar-copy"]',
     conversationTitle: '[data-testid="chat-title-button"] .truncate, button[data-testid="chat-title-button"] div.truncate',
-    feedbackButton: 'button[aria-label="Give positive feedback"], , button[aria-label="Read aloud"]'
+    feedbackButton: 'button[aria-label="Give positive feedback"], button[aria-label="Read aloud"]'
   };
 , button[aria-label="Read aloud"]'
   const DELAYS = {
